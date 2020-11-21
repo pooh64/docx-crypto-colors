@@ -1,0 +1,7 @@
+*
+!*/
+!*.gitignore
+
+!*.py
+!*.docx
+!*.data
