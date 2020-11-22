@@ -99,4 +99,40 @@ class color_decoder:
         self.fh.write(self.ba)
         self.ba.clear()
 
+def encode(doc_path, data_path, out_path):
+    ce = color_encoder(data_path)
+    col = bytearray([0, 0, 0])
+    document = Document(doc_path)
+    done = False
+    for para in document.paragraphs:
+        if done:
+            break
+        for run in para.runs:
+            if run.text == '':
+                continue
+            s = run.text
+            run.text = ''
+            for c in s: 
+                c_run = build_c_run(c, para, run)
+                done = not ce.encode(col)
+                encode_run(c_run, col)
+                run = c_run
+    if ce.encode(col):
+        print('Document is too small to contain entire data')
+    document.save(out_path)
+
+def decode(doc_path, data_path):
+    def decode_loop():
+        for para in document.paragraphs:
+            for run in para.runs:
+                for c in run.text:
+                    decode_run(run, col)
+                    if not cd.decode(col):
+                        return
+
+    cd = color_decoder(data_path)
+    col = bytearray([0, 0, 0])
+    document = Document(doc_path)
+    decode_loop()
+    cd.save()
 
